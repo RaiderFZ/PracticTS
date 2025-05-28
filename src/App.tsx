@@ -3,9 +3,7 @@ import React, { useState } from 'react'
 import Counter from './Counter';
 import './App.css'
 
-function App():React.FC {
-  
-
+const App: React.FC = () => {
   return (
     <div>
       <h1>Counter</h1>
