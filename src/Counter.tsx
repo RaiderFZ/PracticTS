@@ -12,7 +12,13 @@ const Counter: React.FC<CounterProps> = ( {initialCount} ) => {
     }
 
     const decrement = ():void => {
-        setCount(count - 1);
+        if(count > 0) {
+            setCount(count - 1);
+        }
+    }
+
+    const reset = ():void => {
+        setCount(initialCount);
     }
 
     return(
@@ -20,6 +26,7 @@ const Counter: React.FC<CounterProps> = ( {initialCount} ) => {
             <h1>Счетчик: {count}</h1>
             <button onClick={increment}>+</button>
             <button onClick={decrement}>-</button>
+            <button onClick={reset}>Сбросить</button>
         </div>
     );
 }
