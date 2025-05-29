@@ -2,21 +2,26 @@ import React, {useState, useEffect} from 'react';
 
 interface CounterProps {
     initialCount: number;
+    maxCount?: number;
+    minCount?: number; 
 }
 
 interface HistoryEntry {
     id: number;
-    action: "increment" | "decrement" | "reset";
+    action: "increment" | "decrement" | "reset" | "limit_reached" | "min_reached";
     value: number;
     timestamp: string;
 }
 
-const Counter: React.FC<CounterProps> = ( {initialCount} ) => {
+const Counter: React.FC<CounterProps> = ( {initialCount, maxCount, minCount} ) => {
     const [count, setCount] = useState<number>(initialCount);
     const [history, setHistory] = useState<HistoryEntry[]>(() => {
         const savedHistory = localStorage.getItem('counterHistory');
         return savedHistory ? JSON.parse(savedHistory) : [];
     })
+    const [maxLimit, setMaxLimit] = useState<number | null>(maxCount ?? null)
+
+    const [ minLimit, setMinLimit ] = useState<number | null>(minCount ?? null)
 
     useEffect(() => {
         localStorage.setItem('counterHistory', JSON.stringify(history));
@@ -33,12 +38,20 @@ const Counter: React.FC<CounterProps> = ( {initialCount} ) => {
     }
  
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const increment = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    const increment = (): void => {
+        if(maxLimit !== null && count >= maxLimit) {
+            addToHistory("limit_reached", count);
+            return;
+        }
         setCount(count + 1);
         addToHistory("increment", count + 1);
     }
 
     const decrement = ():void => {
+        if(minLimit !== null && count <= minLimit) {
+            addToHistory("min_reached", count);
+            return; 
+        }
         if(count > 0) {
             setCount(count - 1);
             addToHistory("decrement", count - 1)
@@ -54,11 +67,41 @@ const Counter: React.FC<CounterProps> = ( {initialCount} ) => {
         setHistory([]);
     }
 
+    const handleLimitChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+        const value = event.target.value;
+        const parsedValue = parseInt(value, 10);
+        setMaxLimit(isNaN(parsedValue) ? null : parsedValue)
+    }
+
+    const handleMinLimitChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+        const value = event.target.value;
+        const parsedValue = parseInt(value, 10);
+        setMinLimit(isNaN(parsedValue) ? null : parsedValue);
+    }
+
     return(
         <div>
             <h1>Счетчик: {count}</h1>
-            <button onClick={increment}>+</button>
-            <button onClick={decrement}>-</button>
+            <label>
+                Максимальный лимит
+                <input 
+                    type="number"
+                    value={maxLimit ?? ""}
+                    onChange={handleLimitChange}
+                    placeholder='Введите максимум'
+                />
+            </label>
+            <label>
+                Минимальный лимит
+                <input 
+                    type="number"
+                    value={minLimit ?? ""}
+                    onChange={handleMinLimitChange} 
+                    placeholder='Введите минимум'
+                />
+            </label>
+            <button onClick={increment} disabled={maxLimit !== null && count >= maxLimit}>+</button>
+            <button onClick={decrement} disabled={minLimit !== null && count <= minLimit} >-</button>
             <button onClick={reset}>Сбросить</button>
             <button onClick={clearHistory}>Очистить историю</button>
 
@@ -69,7 +112,13 @@ const Counter: React.FC<CounterProps> = ( {initialCount} ) => {
                 <ul>
                     {history.map((entry) => (
                         <li key={entry.id}>
-                            {entry.timestamp}: {entry.action} → Значение: {entry.value} 
+                            {entry.timestamp}:{" "}
+                            {entry.action === "limit_reached"
+                            ? "Достигнут максимальный лимит"
+                            : entry.action === "min_reached"
+                            ? "Достигнут минимальный лимит"
+                            : entry.action}{" "}
+                            → Значение: {entry.value} 
                         </li>
                     ))}
                 </ul>
