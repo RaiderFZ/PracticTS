@@ -123,6 +123,8 @@ const Counter: React.FC<CounterProps> = ( {initialCount, maxCount, minCount} ) =
                     ))}
                 </ul>
             )}
+
+           
         </div>
     );
 }

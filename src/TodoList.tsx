@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import TaskStats from './TaskStats';
 
 import './App.css'
 
@@ -13,7 +14,7 @@ export interface Task {
     completed: boolean;
 }
 
-const initilisation = (defTask: Task[] | undefined): Task[] => {
+const initialization = (defTask: Task[] | undefined): Task[] => {
     if(defTask) {
         return defTask
     } else {
@@ -22,7 +23,10 @@ const initilisation = (defTask: Task[] | undefined): Task[] => {
 } 
 
 const TodoList: React.FC<PropsTask> = ({title, defaultTask}) => {
-    const [task, setTask] = useState<Task[]>(initilisation(defaultTask))
+    const [task, setTask] = useState<Task[]>(() => {
+        const saved = localStorage.getItem("todoTask");
+        return saved ? JSON.parse(saved) as Task[] : initialization(defaultTask);
+    })
     const [textTitle, setTextTitle] = useState('') 
 
     const handleText = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +62,11 @@ const TodoList: React.FC<PropsTask> = ({title, defaultTask}) => {
             })
         )
     }
+
+    useEffect(() => {
+        localStorage.setItem('todoTask', JSON.stringify(task))
+    }, [task])
+
     return (
         <div>
             <h1>{title}</h1>
@@ -68,19 +77,21 @@ const TodoList: React.FC<PropsTask> = ({title, defaultTask}) => {
             />  
             <button onClick={addNewTask}>Добавить</button>
             <div>
-                {task.length === 0 ? (<p>'Нет задач'</p>) : (
+                {task.length === 0 ? (<p> Нет задач </p>) : (
                     <ul>
                         {task.map(item => (
                             <li key={item.id}>
                                 <p>{item.text}</p>
                                 <input type="checkbox" checked={item.completed} onChange={() => changeCompleted(item.id)}/>
-                                <button onClick={() => deleteTask(item.id)}>deleted</button>
+                                <button onClick={() => deleteTask(item.id)}>Удалить</button>
                             </li>
                         ))}
                 </ul>
                 )}
-                
             </div> 
+             <div>
+                <TaskStats tasks={task}/>
+            </div>
         </div>
     )
 }
