@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import TaskStats from './TaskStats';
 
 import './App.css'
@@ -15,25 +15,48 @@ export interface Task {
 }
 
 const initialization = (defTask: Task[] | undefined): Task[] => {
-    if(defTask) {
-        return defTask
-    } else {
-        return []
-    }
+    if (!defTask) return [];
+    return defTask.filter(
+        (task, index, self) =>
+            typeof task.id === 'number' &&
+            typeof task.text === 'string' &&
+            typeof task.completed === 'boolean' &&
+            self.findIndex(t => t.id === task.id) === index
+    );
 } 
+
+type TaskFilter = "all" | "completed" | "uncompleted"
 
 const TodoList: React.FC<PropsTask> = ({title, defaultTask}) => {
     const [task, setTask] = useState<Task[]>(() => {
         const saved = localStorage.getItem("todoTask");
-        return saved ? JSON.parse(saved) as Task[] : initialization(defaultTask);
+        try {
+            return saved ? JSON.parse(saved) as Task[] : initialization(defaultTask);
+        } catch {
+            return initialization(defaultTask); // безопасное восстановление
+        }
     })
-    const [textTitle, setTextTitle] = useState('') 
+    const [textTitle, setTextTitle] = useState('') ;
+    const [filter, setFilter] = useState<TaskFilter>("all");
+    
+    const filteredTasks = useMemo(() => {
+        switch (filter) {
+            case "completed":
+                return task.filter((item) => item.completed);
+            case "uncompleted":
+                return task.filter((item) => !item.completed);
+            default:
+                return task;
+        }
+    }, [task, filter]);
+
 
     const handleText = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTextTitle(event.target.value)
     }
 
     const addNewTask = (): void => {
+        if (!textTitle.trim()) return;
         const newTask: Task = {
             id: Date.now(),
             text:textTitle,
@@ -67,19 +90,41 @@ const TodoList: React.FC<PropsTask> = ({title, defaultTask}) => {
         localStorage.setItem('todoTask', JSON.stringify(task))
     }, [task])
 
+    const changeFilter = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setFilter(event.target.value as TaskFilter);
+    }
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if(event.key === 'Enter') {
+            addNewTask()
+        }
+    }
+
     return (
         <div>
             <h1>{title}</h1>
+            <select 
+                name="filter" 
+                id="filter" 
+                value={filter} 
+                onChange={changeFilter}
+            >
+                <option value="all">Все</option>
+                <option value="completed">Выполненные</option>
+                <option value="uncompleted">Невыполненные</option>
+            </select>
+            <hr />
             <input 
                 type="text"
                 value={textTitle}
                 onChange={handleText}
+                onKeyDown={handleKeyDown}
             />  
             <button onClick={addNewTask}>Добавить</button>
             <div>
-                {task.length === 0 ? (<p> Нет задач </p>) : (
+                {filteredTasks.length === 0 ? (<p> Нет задач </p>) : (
                     <ul>
-                        {task.map(item => (
+                        {filteredTasks.map(item => (
                             <li key={item.id}>
                                 <p>{item.text}</p>
                                 <input type="checkbox" checked={item.completed} onChange={() => changeCompleted(item.id)}/>
