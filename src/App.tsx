@@ -5,6 +5,7 @@ import TodoList from './TodoList';
 
 import type { Task } from './TodoList';
 import './App.css'
+import WeatherComponent from './WeatherComponent';
 
 const App: React.FC = () => {
   const defaultTask: Task[] = [
@@ -20,7 +21,10 @@ const App: React.FC = () => {
         <TodoList title="Мои звдчи" defaultTask={defaultTask}/>
       </div>
 
-      
+      <div>
+        <h1>Отдел с погодой</h1>
+        <WeatherComponent/>
+      </div>
     </div>
   )
 }
