@@ -1,0 +1,25 @@
+.game-wrap {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-gap: 5px; 
+}
+
+.game-input {
+  width: 100px;
+  height: 100px;
+  background-color: #fff;
+  border: 2px solid #333;
+  font-size: 40px; /* Для отображения "X" или "O" */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-input:hover {
+  background-color: #e0e0e0; /* Эффект при наведении */
+}
+
+.game-input:focus {
+  outline: none; /* Убираем обводку при клике */
+}

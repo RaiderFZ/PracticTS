@@ -53,7 +53,7 @@ const WeatherComponent = () => {
     useEffect(() => {
         const fetchWeather = async () => {
             try {
-                const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=55.7558&longitude=37.6176&current_weather=true&timezone=auto")
+                // const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=55.7558&longitude=37.6176&current_weather=true&timezone=auto")
 
                 if(!response.ok) {
                     throw new Error('Ошибка при загрузке');

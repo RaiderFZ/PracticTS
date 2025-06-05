@@ -2,10 +2,12 @@ import React from 'react'
 
 import Counter from './Counter';
 import TodoList from './TodoList';
+import WeatherComponent from './WeatherComponent';
+import Game from './games/Game';
 
 import type { Task } from './TodoList';
 import './App.css'
-import WeatherComponent from './WeatherComponent';
+
 
 const App: React.FC = () => {
   const defaultTask: Task[] = [
@@ -14,6 +16,10 @@ const App: React.FC = () => {
   ]
   return (
     <div>
+      <div className='game'> 
+        <Game/>
+      </div>
+
       <h1>Counter</h1>
       <Counter initialCount={5}/>
 
