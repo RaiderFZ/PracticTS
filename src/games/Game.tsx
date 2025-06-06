@@ -6,10 +6,10 @@ interface GameState {
     board: Cell[];
     currentPlayer: 'X' | "O";
     winner: Cell | null | 'Ничья',
+    WinnerCells: number[],
 }
 
 type WinCell = Cell | null | 'Ничья';
-
 type Cell = '' | 'X' | 'O';
 
 const Combination: readonly number[][] = [
@@ -23,13 +23,14 @@ const Game: React.FC = () => {
         board: Array(9).fill(''),
         currentPlayer: 'X',
         winner: null,
+        WinnerCells: [],
     });
 
-    const checkWinner = (board: Cell[]): WinCell  => {
+    const checkWinner = (board: Cell[]): { winner: Cell, cells: number[] } | null  => {
         for(const combo of Combination) {
             const [a, b, c] = combo;
             if(board[a] && board[a] === board[b] && board[a] === board[c]) {
-                return board[a];
+                return { winner: board[a], cells: [a, b, c] };
             }
         }
         return null;
@@ -44,14 +45,14 @@ const Game: React.FC = () => {
             const newBoard = [...game.board];
             newBoard[index] = game.currentPlayer;
             let winCell = checkWinner(newBoard);
-            if (!winCell && newBoard.every(cell => cell !== '')) {
-                winCell = 'Ничья';
-            }
+            const isDraw = !winCell && newBoard.every(cell => cell !== '');
+            
             setGame({
                 ...game,
                 board: newBoard,
-                winner: winCell,
-                currentPlayer: game.currentPlayer === 'X' ? 'O' : 'X'
+                winner: winCell ? winCell.winner : isDraw ? 'Ничья' : null,
+                currentPlayer: winCell || isDraw ? game.currentPlayer : (game.currentPlayer === 'X' ? 'O' : 'X'),
+                WinnerCells: winCell ? winCell.cells : [],
             });
         }
     } 
@@ -60,9 +61,11 @@ const Game: React.FC = () => {
         setGame({
             board: Array(9).fill(''),
             currentPlayer: 'X',
-            winner: null
+            winner: null,
+            WinnerCells: [],
         });
     };
+
    
     return (
 
@@ -74,15 +77,16 @@ const Game: React.FC = () => {
             <div className="game-wrap">
                 {game.board.map((cell, index) => (
                     <button 
-                        className="game-input" 
+                        className={`game-input ${game.WinnerCells.includes(index) ? 'winner-cell' : ''}`}
                         key={index}
                         onClick={() => handleClick(index)}
                         disabled={game.winner !== null}
                     >
-                            {cell}
+                        {cell}
                     </button>
                 ))}
-            </div> 
+            </div>
+
 
             {game.winner && (
                 <button onClick={restartGame} className="restart-btn">

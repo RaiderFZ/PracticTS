@@ -1,25 +1,74 @@
+
 .game-wrap {
-  display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-gap: 5px; 
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 10px;
+    margin: 20px auto;
+    width: max-content;
 }
 
 .game-input {
-  width: 100px;
-  height: 100px;
-  background-color: #000;
-  border: 2px solid #333;
-  font-size: 40px; /* Для отображения "X" или "O" */
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    width: 100px;
+    height: 100px;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
-.game-input:hover {
-  background-color: #e0e0e0; /* Эффект при наведении */
+.game-input:hover:not(:disabled) {
+    background-color: #e0e0ff;
+    transform: scale(1.05);
 }
 
-.game-input:focus {
-  outline: none; /* Убираем обводку при клике */
+.game-input:disabled {
+    cursor: default;
+    background-color: #ddd;
+}
+
+.game-input.X {
+    color: #0074D9; 
+}
+
+.game-input.O {
+    color: #FF4136; 
+}
+
+.winner-cell {
+    background-color: #baffc9 !important;
+    border: 2px solid #2ecc40; 
+    animation: winnerHighlight 0.5s ease-in-out infinite alternate;
+}
+
+
+@keyframes winnerHighlight {
+    0% { box-shadow: 0 0 5px #2ecc40; }
+    100% { box-shadow: 0 0 20px #2ecc40; }
+}
+
+h2 {
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+}
+
+.restart-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #0074D9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.restart-btn:hover {
+    background-color: #005fa3;
 }
